@@ -1,8 +1,8 @@
 # neU-net
 
-## Description
-
 This package provides tools for U-net segmentation of biomedical imaging data.  This is a typical implementation of the U-net architecture in [PyTorch](https://pytorch.org/) with additional functionality for running experiments and deploying models to run in imaging studies.
+
+## Design
 
 The general approach taken by the package can be outlined as follows:
 * Train a the model with a first batch of data for some number of epoches
