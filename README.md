@@ -25,4 +25,4 @@ This package is implemented in Python, and you can find the required packages in
 
 Author: Ryan Cabeen, cabeen@gmail.com
 
-This work was made possible in part by grant number 2020-225670 from the Chan Zuckerberg Initiative DAF, an advised fund of Silicon Valley Community Foundation.
+This work was made possible in part by the CZI Imaging Scientist Award Program, under grant number 2020-225670 from the Chan Zuckerberg Initiative DAF, an advised fund of Silicon Valley Community Foundation.
