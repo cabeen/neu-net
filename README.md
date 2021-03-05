@@ -21,6 +21,8 @@ You can learn more about the architecture by checking out the [original MICCAI p
 
 This package is implemented in Python, and you can find the required packages in the `reqs.txt` file. I recommend you create a virtual environment, using either [Anaconda](https://docs.anaconda.com/anaconda/install/) or [Python venv](https://docs.python.org/3/tutorial/venv.html).
 
-## Contact
+## Acknowledgements
 
 Author: Ryan Cabeen, cabeen@gmail.com
+
+This work was made possible in part by grant number 2020-225670 from the Chan Zuckerberg Initiative DAF, an advised fund of Silicon Valley Community Foundation.
