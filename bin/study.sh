@@ -7,59 +7,66 @@
 #
 ################################################################################
 
-cd $(dirname $0)
-cd ..
-
 bin="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+
+if [ $# -ne 2 ]; then
+  echo "usage: $(basename $0) input output"
+  exit
+fi
+
+echo "started $(basename $0)"
+
+input=$1
+output=$2
 
 epochs=10
 rescale=128
 kernel=128
 
-mkdir -p results/{valid,test,train}/{out,mosaics}
+mkdir -p ${output}/{valid,test,train}/{out,mosaics}
 
-if [ ! -e results/models ]; then
+if [ ! -e ${output}/models ]; then
   python3 ${bin}/train.py \
     --kernel ${kernel} \
     --rescale ${rescale} \
     --epochs ${epochs} \
     --largest \
-    --images data/train/images \
-    --masks data/train/labels \
-    --output results/models
+    --images ${input}/train/images \
+    --masks ${input}/train/labels \
+    --output ${output}/models
 fi
 
-if [ ! -e results/valid/out ]; then
+if [ ! -e ${output}/valid/out ]; then
   python3 ${bin}/validate.py \
-    --models results/models \
-    --images data/valid/images \
-    --masks data/valid/labels \
-    --output results/valid/out
+    --models ${output}/models \
+    --images ${input}/valid/images \
+    --masks ${input}/valid/labels \
+    --output ${output}/valid/out
 fi
 
-if [ ! -e results/test/out ]; then
+if [ ! -e ${output}/test/out ]; then
   python3 ${bin}/test.py \
-    --model results/valid/out/best-model \
-    --images data/test/images \
-    --masks data/test/labels \
-    --output results/test/out
+    --model ${output}/valid/out/best-model \
+    --images ${input}/test/images \
+    --masks ${input}/test/labels \
+    --output ${output}/test/out
 fi
 
-if [ ! -e results/train/out ]; then
+if [ ! -e ${output}/train/out ]; then
   python3 ${bin}/test.py \
-    --model results/valid/out/best-model \
-    --images data/train/images \
-    --masks data/train/labels \
-    --output results/train/out
+    --model ${output}/valid/out/best-model \
+    --images ${input}/train/images \
+    --masks ${input}/train/labels \
+    --output ${output}/train/out
 fi
 
-if [ -e data/fail ]; then
-  if [ ! -e results/fail/out ]; then
+if [ -e ${input}/fail ]; then
+  if [ ! -e ${output}/fail/out ]; then
     python3 ${bin}/test.py \
-      --model results/valid/out/best-model \
-      --images data/fail/images \
-      --masks data/fail/labels \
-      --output results/fail/out
+      --model ${output}/valid/out/best-model \
+      --images ${input}/fail/images \
+      --masks ${input}/fail/labels \
+      --output ${output}/fail/out
   fi
 fi
 
@@ -67,38 +74,38 @@ function postprocess
 {
   name=$1
 
-  if [ ! -e results/${name}/mosaics ]; then
-    for s in $(cat data/${name}/names.txt); do \
+  if [ ! -e ${output}/${name}/mosaics ]; then
+    for s in $(cat ${input}/${name}/names.txt); do \
       echo ${bin}/mosaic.sh \
-        data/${name}/images/${s}.nii.gz \
-        data/${name}/labels/${s}.nii.gz \
-        results/${name}/mosaics/${s}-label.png
+        ${input}/${name}/images/${s}.nii.gz \
+        ${input}/${name}/labels/${s}.nii.gz \
+        ${output}/${name}/mosaics/${s}-label.png
       echo ${bin}/mosaic.sh \
-        data/${name}/images/${s}.nii.gz \
-        results/${name}/out/${s}.nii.gz \
-        results/${name}/mosaics/${s}-pred.png
+        ${input}/${name}/images/${s}.nii.gz \
+        ${output}/${name}/out/${s}.nii.gz \
+        ${output}/${name}/mosaics/${s}-pred.png
     done | parallel -j 20
   fi
 
-  if [ ! -e data/${name}/volumes.csv ]; then
+  if [ ! -e ${input}/${name}/volumes.csv ]; then
     qit --verbose MaskMeasureBatch \
       --value data \
-      --input data/${name}/labels/%s.nii.gz \
-      --names data/${name}/names.txt \
-      --output data/${name}/volumes.csv
+      --input ${input}/${name}/labels/%s.nii.gz \
+      --names ${input}/${name}/names.txt \
+      --output ${input}/${name}/volumes.csv
   fi
 
-  if [ ! -e results/${name}/volumes.csv ]; then
+  if [ ! -e ${output}/${name}/volumes.csv ]; then
     qit --verbose MaskMeasureBatch \
-      --value results \
-      --input results/${name}/out/%s.nii.gz \
-      --names data/${name}/names.txt \
-      --output results/${name}/volumes.csv
+      --value ${output} \
+      --input ${output}/${name}/out/%s.nii.gz \
+      --names ${input}/${name}/names.txt \
+      --output ${output}/${name}/volumes.csv
     qit --verbose TableMerge \
       --field name \
-      --left data/${name}/volumes.csv \
-      --right results/${name}/volumes.csv \
-      --output results/${name}/volumes.csv
+      --left ${input}/${name}/volumes.csv \
+      --right ${output}/${name}/volumes.csv \
+      --output ${output}/${name}/volumes.csv
   fi
 }
 
