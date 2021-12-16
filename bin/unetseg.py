@@ -477,7 +477,7 @@ class VolumeDataset(data.Dataset):
         self.current_mask_nii = nib.load(os.path.join(self.masks, self.cases[index]))
 
         my_image = np.array(self.current_image_nii.get_data(), dtype=np.float32)
-        if len(my_image) == 3:
+        if len(my_image.shape) == 3:
             my_image = np.expand_dims(my_image, axis=0)
         else:
             my_image = np.transpose(my_image, (3, 0, 1, 2))
