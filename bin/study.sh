@@ -23,9 +23,10 @@ epochs=10
 rescale=128
 kernel=128
 
-mkdir -p ${output}/{valid,test,train}/{out,mosaics}
+mkdir -p ${output}/{valid,test,train}/mosaics
 
 if [ ! -e ${output}/models ]; then
+  echo "running training step"
   python3 ${bin}/train.py \
     --kernel ${kernel} \
     --rescale ${rescale} \
@@ -34,39 +35,53 @@ if [ ! -e ${output}/models ]; then
     --images ${input}/train/images \
     --masks ${input}/train/labels \
     --output ${output}/models
+else
+  echo "skipping training step"
 fi
 
-if [ ! -e ${output}/valid/out ]; then
+if [ ! -e ${output}/valid/out/best-model ]; then
+  echo "running validation step"
   python3 ${bin}/validate.py \
     --models ${output}/models \
     --images ${input}/valid/images \
     --masks ${input}/valid/labels \
     --output ${output}/valid/out
+else
+  echo "skipping validation step"
 fi
 
 if [ ! -e ${output}/test/out ]; then
+  echo "running testing step"
   python3 ${bin}/test.py \
     --model ${output}/valid/out/best-model \
     --images ${input}/test/images \
     --masks ${input}/test/labels \
     --output ${output}/test/out
+else
+  echo "skipping testing step"
 fi
 
 if [ ! -e ${output}/train/out ]; then
+  echo "running training output step"
   python3 ${bin}/test.py \
     --model ${output}/valid/out/best-model \
     --images ${input}/train/images \
     --masks ${input}/train/labels \
     --output ${output}/train/out
+else
+  echo "skipping training output step"
 fi
 
 if [ -e ${input}/fail ]; then
   if [ ! -e ${output}/fail/out ]; then
+		echo "running fail output step"
     python3 ${bin}/test.py \
       --model ${output}/valid/out/best-model \
       --images ${input}/fail/images \
       --masks ${input}/fail/labels \
       --output ${output}/fail/out
+	else
+		echo "skipping fail output step"
   fi
 fi
 
