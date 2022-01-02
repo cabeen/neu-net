@@ -23,7 +23,7 @@ epochs=10
 rescale=128
 kernel=128
 
-mkdir -p ${output}/{valid,test,train}/mosaics
+mkdir -p ${output}/{valid,test,train}
 
 if [ ! -e ${output}/models ]; then
   echo "running training step"
@@ -90,6 +90,7 @@ function postprocess
   name=$1
 
   if [ ! -e ${output}/${name}/mosaics ]; then
+    mkdir -p ${output}/${name}/mosaics
     for s in $(cat ${input}/${name}/names.txt); do \
       echo ${bin}/mosaic.sh \
         ${input}/${name}/images/${s}.nii.gz \
